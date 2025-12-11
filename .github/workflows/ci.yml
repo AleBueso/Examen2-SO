@@ -1,12 +1,12 @@
-name: CI
+name: Deploy
 
 on:
-  pull_request:
-    branches:
-      - main
+  push:
+    tags:
+      - "v*"
 
 jobs:
-  test:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -21,13 +21,16 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Set environment variables
-        run: |
-          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "FLASK_ENV=test" >> $GITHUB_ENV
-
       - name: Run tests
-      
         run: pytest -q
 
-        run: pytest -q
+      - name: Deploy to Render
+        env:
+          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
+          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
+        run: |
+          curl -X POST \
+          -H "Authorization: Bearer ${RENDER_API_KEY}" \
+          -H "Content-Type: application/json" \
+          --data "{\"serviceId\": \"${RENDER_SERVICE_ID}\"}" \
+          https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
