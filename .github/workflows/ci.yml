@@ -27,7 +27,4 @@ jobs:
           echo "FLASK_ENV=test" >> $GITHUB_ENV
 
       - name: Run tests
-      
         run: pytest -q
-
-      
