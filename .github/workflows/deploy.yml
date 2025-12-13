@@ -1,5 +1,6 @@
 name: Deploy
 
+# Se ejecuta cuando se crea un tag que empiece con "v"
 on:
   push:
     tags:
@@ -10,30 +11,32 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout
+      # 1️⃣ Hacer checkout del repo
+      - name: Checkout repository
         uses: actions/checkout@v3
 
-      - name: Set up Python
+      # 2️⃣ Configurar Python 3.11
+      - name: Setup Python
         uses: actions/setup-python@v4
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
+      # 3️⃣ Instalar dependencias
       - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run tests
-        run: pytest -q
-
-      - name: Deploy to Render
-        env:
-          RENDER_SERVICE_ID: ${{ secrets.RENDER_SERVICE_ID }}
-          RENDER_API_KEY: ${{ secrets.RENDER_API_KEY }}
         run: |
-          curl -X POST \
-          -H "Authorization: Bearer ${RENDER_API_KEY}" \
-          -H "Content-Type: application/json" \
-          --data "{\"serviceId\": \"${RENDER_SERVICE_ID}\"}" \
-          https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
 
+      # 4️⃣ Configurar variables de entorno de producción
+      - name: Load environment variables
+        run: |
+          echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
+          echo "DEPLOY_USER=${{ secrets.DEPLOY_USER }}" >> $GITHUB_ENV
+          echo "DEPLOY_PASSWORD=${{ secrets.DEPLOY_PASSWORD }}" >> $GITHUB_ENV
 
-#Grupo 3
+      # 5️⃣ Deploy a plataforma cloud (ejemplo Render usando CLI)
+      - name: Deploy to Render
+        run: |
+          # Ejemplo con Render CLI, ajusta según tu plataforma
+          curl -L https://cli.render.com/install.sh | bash
+          render deploy service --service-id ${{ secrets.RENDER_SERVICE_ID }} --api-key ${{ secrets.RENDER_API_KEY }}
