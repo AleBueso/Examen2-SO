@@ -1,6 +1,6 @@
 name: Deploy
 
-# Se ejecuta cuando se crea un tag que empiece con "v"
+# Se ejecuta con tags que empiecen con v*
 on:
   push:
     tags:
@@ -27,16 +27,12 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 4️⃣ Configurar variables de entorno de producción
+      # 4️⃣ Cargar variables de entorno (si necesitas)
       - name: Load environment variables
         run: |
           echo "SECRET_KEY=${{ secrets.SECRET_KEY }}" >> $GITHUB_ENV
-          echo "DEPLOY_USER=${{ secrets.DEPLOY_USER }}" >> $GITHUB_ENV
-          echo "DEPLOY_PASSWORD=${{ secrets.DEPLOY_PASSWORD }}" >> $GITHUB_ENV
 
-      # 5️⃣ Deploy a plataforma cloud (ejemplo Render usando CLI)
-      - name: Deploy to Render
+      # 5️⃣ Simular deploy (no falla)
+      - name: Simulate Deploy
         run: |
-          # Ejemplo con Render CLI, ajusta según tu plataforma
-          curl -L https://cli.render.com/install.sh | bash
-          render deploy service --service-id ${{ secrets.RENDER_SERVICE_ID }} --api-key ${{ secrets.RENDER_API_KEY }}
+          echo "Deploy skipped: no plataforma configurada"
